@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>スマホ崩れ修正デモ｜Before / After</title>
+  <meta name="description" content="スマホ表示でよくある崩れを，Before/Afterで切り替えて確認できる修正デモです．" />
+  <style>
+    :root{
+      --bg:#0b1220;
+      --panel:#111a2e;
+      --card:#0f1730;
+      --text:#eaf0ff;
+      --muted:#a9b5d6;
+      --line:rgba(255,255,255,.12);
+      --accent:#67e8f9;
+      --accent2:#a78bfa;
+      --shadow:0 14px 40px rgba(0,0,0,.35);
+      --radius:16px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", "Noto Sans JP", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+      background: radial-gradient(900px 500px at 15% 10%, rgba(103,232,249,.18), transparent 60%),
+                  radial-gradient(900px 500px at 85% 0%, rgba(167,139,250,.16), transparent 55%),
+                  var(--bg);
+      color:var(--text);
+      overflow-x:hidden;
+    }
+    a{color:var(--accent)}
+    .wrap{max-width:980px;margin:0 auto;padding:28px 16px 56px}
+    .hero{
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+      border:1px solid var(--line);
+      border-radius:24px;
+      padding:22px 18px;
+      box-shadow:var(--shadow);
+    }
+    .hero h1{margin:0 0 6px;font-size:22px;letter-spacing:.02em}
+    .hero p{margin:0;color:var(--muted);line-height:1.7}
+    .bar{
+      display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between;
+      margin-top:14px;padding-top:14px;border-top:1px solid var(--line);
+    }
+    .mode{
+      display:flex;gap:10px;align-items:center;flex-wrap:wrap;
+    }
+    .badge{
+      font-size:12px;color:var(--muted);
+      border:1px solid var(--line);
+      padding:6px 10px;border-radius:999px;
+      background:rgba(255,255,255,.03);
+    }
+    .btns{display:flex;gap:10px;flex-wrap:wrap}
+    button{
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.04);
+      color:var(--text);
+      padding:10px 12px;
+      border-radius:999px;
+      cursor:pointer;
+      font-weight:700;
+      letter-spacing:.02em;
+    }
+    button:hover{background:rgba(255,255,255,.08)}
+    button.primary{
+      border-color:rgba(103,232,249,.45);
+      background:rgba(103,232,249,.10);
+    }
+    .grid{display:grid;gap:14px;margin-top:16px}
+    @media(min-width:900px){.grid{grid-template-columns:1fr 1fr 1fr}}
+    .card{
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      background:rgba(255,255,255,.03);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+    .card .hd{padding:14px 14px 10px;border-bottom:1px solid var(--line)}
+    .card .hd h2{margin:0;font-size:15px}
+    .card .hd p{margin:6px 0 0;color:var(--muted);font-size:12.5px;line-height:1.6}
+    .card .bd{padding:14px}
+    .stage{
+      border:1px dashed rgba(255,255,255,.22);
+      border-radius:14px;
+      padding:12px;
+      background:rgba(17,26,46,.55);
+      position:relative;
+      min-height:150px;
+    }
+    .label{
+      position:absolute;top:10px;right:10px;
+      font-size:12px;font-weight:800;
+      padding:6px 10px;border-radius:999px;
+      border:1px solid var(--line);
+      background:rgba(0,0,0,.25);
+      color:var(--text);
+    }
+    .label.before{border-color:rgba(239,68,68,.55)}
+    .label.after{border-color:rgba(34,197,94,.55)}
+    .note{margin-top:10px;color:var(--muted);font-size:12.5px;line-height:1.7}
+
+    /* Before/After切替 */
+    .beforeOnly{display:none}
+    .afterOnly{display:none}
+    body.mode-before .beforeOnly{display:block}
+    body.mode-after  .afterOnly{display:block}
+
+    /* Demo 1: 横スクロール */
+    .demo1 .wide-box{
+      height:44px;border-radius:12px;
+      background:linear-gradient(90deg, rgba(103,232,249,.30), rgba(167,139,250,.30));
+      border:1px solid rgba(255,255,255,.18);
+    }
+    body.mode-before .demo1 .wide-box{width:1200px}  /* わざと広すぎ */
+    body.mode-after  .demo1 .wide-box{width:100%; max-width:100%}
+    .demo1 .hint{margin-top:10px;color:var(--muted);font-size:12px}
+
+    /* Demo 2: 画像はみ出し */
+    .demo2 .img-wrap{
+      width:100%;
+      max-width:320px;
+      border-radius:14px;
+      overflow:hidden;
+      border:1px solid rgba(255,255,255,.18);
+      background:rgba(255,255,255,.02);
+    }
+    .demo2 img{display:block}
+    body.mode-before .demo2 img{width:800px; height:180px} /* わざと固定 */
+    body.mode-after  .demo2 img{width:100%; max-width:100%; height:auto}
+
+    /* Demo 3: ボタン押しにくい */
+    .demo3 .cta-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    .demo3 .cta{
+      border-radius:10px;border:1px solid rgba(255,255,255,.18);
+      background:rgba(103,232,249,.12);
+      color:var(--text);
+      font-weight:900;
+    }
+    body.mode-before .demo3 .cta{
+      padding:6px 8px;font-size:12px;min-height:28px; /* 小さすぎ */
+    }
+    body.mode-after .demo3 .cta{
+      padding:12px 16px;font-size:14px;min-height:44px; /* タップしやすい */
+    }
+    .demo3 .sub{color:var(--muted);font-size:12.5px;line-height:1.6}
+    .foot{
+      margin-top:18px;
+      color:var(--muted);
+      font-size:12.5px;
+      line-height:1.8;
+      border-top:1px solid var(--line);
+      padding-top:14px;
+    }
+    code{background:rgba(255,255,255,.06);padding:2px 6px;border-radius:8px;border:1px solid var(--line)}
+  </style>
+</head>
+
+<body class="mode-after">
+  <div class="wrap">
+    <div class="hero">
+      <h1>スマホ崩れ修正デモ，Before / After</h1>
+      <p>
+        スマホ表示でよくある崩れを，ボタンで切り替えて確認できます．
+        ｢修正案件で何が直せるか｣を一瞬で伝えるための見本です．
+      </p>
+
+      <div class="bar">
+        <div class="mode">
+          <span class="badge">切替：Beforeは崩れた状態，Afterは修正後</span>
+          <span class="badge">想定：HTML/CSS軽微修正</span>
+        </div>
+        <div class="btns">
+          <button id="toBefore">Beforeを見る</button>
+          <button id="toAfter" class="primary">Afterを見る</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid">
+      <!-- Demo 1 -->
+      <section class="card demo1">
+        <div class="hd">
+          <h2>1．横スクロールが出る</h2>
+          <p>原因例：固定幅の要素が画面より大きい．修正例：<code>max-width:100%</code>等で収める．</p>
+        </div>
+        <div class="bd">
+          <div class="stage">
+            <span class="label before beforeOnly">Before</span>
+            <span class="label after afterOnly">After</span>
+            <div class="wide-box"></div>
+            <div class="hint">スマホだと横にスクロールできてしまう状態を再現．</div>
+          </div>
+          <div class="note">
+            修正の考え方：｢固定幅｣を｢%｣や<code>max-width</code>に寄せる，必要なら<code>overflow-x:hidden</code>も検討．
+          </div>
+        </div>
+      </section>
+
+      <!-- Demo 2 -->
+      <section class="card demo2">
+        <div class="hd">
+          <h2>2．画像がはみ出す</h2>
+          <p>原因例：画像に固定幅．修正例：<code>max-width:100%</code>と<code>height:auto</code>．</p>
+        </div>
+        <div class="bd">
+          <div class="stage">
+            <span class="label before beforeOnly">Before</span>
+            <span class="label after afterOnly">After</span>
+            <div class="img-wrap">
+              <img alt="ダミー画像" src="https://images.unsplash.com/photo-1521791055366-0d553872125f?auto=format&fit=crop&w=1200&q=60" />
+            </div>
+          </div>
+          <div class="note">
+            修正の考え方：画像は｢親に合わせる｣が基本．場合により<code>object-fit:cover</code>でトリミングも可能．
+          </div>
+        </div>
+      </section>
+
+      <!-- Demo 3 -->
+      <section class="card demo3">
+        <div class="hd">
+          <h2>3．ボタンが押しにくい</h2>
+          <p>原因例：タップ領域が小さい．修正例：最小44px程度を目安に余白を増やす．</p>
+        </div>
+        <div class="bd">
+          <div class="stage">
+            <span class="label before beforeOnly">Before</span>
+            <span class="label after afterOnly">After</span>
+            <div class="cta-row">
+              <button class="cta" type="button">お問い合わせ</button>
+              <div class="sub">タップ領域が小さいと，スマホで押し間違いが増えます．</div>
+            </div>
+          </div>
+          <div class="note">
+            修正の考え方：<code>min-height</code>と<code>padding</code>でタップ領域を確保し，文字サイズも少し上げる．
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="foot">
+      運用メモ：このページは｢修正前→修正後｣を1つのURLで見せるためのデモです．
+      実案件では，対象URLの崩れ箇所を確認し，影響範囲と修正方針を箇条書きで提示してから着手します．
+    </div>
+  </div>
+
+  <script>
+    const toBefore = document.getElementById("toBefore");
+    const toAfter  = document.getElementById("toAfter");
+
+    function setMode(mode){
+      document.body.classList.remove("mode-before","mode-after");
+      document.body.classList.add(mode);
+      toBefore.classList.toggle("primary", mode === "mode-before");
+      toAfter.classList.toggle("primary", mode === "mode-after");
+    }
+
+    toBefore.addEventListener("click", () => setMode("mode-before"));
+    toAfter.addEventListener("click",  () => setMode("mode-after"));
+  </script>
+</body>
+</html>
